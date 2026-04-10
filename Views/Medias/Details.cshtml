@@ -1,0 +1,80 @@
+﻿@model Models.Media
+@{
+    ViewBag.PageTitle = "Détails";
+    string search = Session["Search"] != null ? ((bool)Session["Search"]).ToString() : false.ToString();
+    string SearchString = Session["SearchString"] != null ? (string)Session["SearchString"] : "";
+}
+
+<div id="detailsPanel" class="detailsPanel">
+    <!-- auto refreshed -->
+</div>
+
+@section Scripts {
+    <script>
+        let mediaDetails_ARP = null;
+        let detailHeader_ARP = null;
+
+        $(() => {
+            mediaDetails_ARP =
+                new AutoRefreshedPanel(
+                    "detailsPanel",
+                    "/Medias/GetMediaDetails",
+                    -1,
+                    mediaDetailsPostRefresh);
+
+            detailHeader_ARP =
+                new AutoRefreshedPanel(
+                    "headerPanel",
+                    "/Medias/GetDetailsHeader",
+                    10,
+                    detailHeaderPostRefresh);
+
+            mediaDetails_ARP.refresh(true);
+            bindDetailLikeCmd();
+        });
+
+        function mediaDetailsPostRefresh() {
+            highlightKeyword();
+        }
+
+        function detailHeaderPostRefresh() {
+            bindDetailLikeCmd();
+        }
+
+        function bindDetailLikeCmd() {
+            $("#detailLikeCmd").off();
+            $("#detailLikeCmd").click(function (e) {
+                let likeIcon = $(this).find("i");
+                let likeCount = $("#detailLikeCount");
+                mediaDetails_ARP.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"), () => {
+                    let liked = likeIcon.hasClass("fas");
+                    likeIcon.toggleClass("fas far");
+                    if (likeCount.length) {
+                        let count = parseInt(likeCount.text(), 10);
+                        if (!isNaN(count)) {
+                            likeCount.text(liked ? count - 1 : count + 1);
+                        }
+                    }
+                    detailHeader_ARP.refresh(true);
+                });
+                e.preventDefault();
+            });
+        }
+
+        function highlightKeyword() {
+            if ("@search" == "True") {
+                let keyword = "@SearchString";
+                if (keyword.length > 0) {
+                     let titles = document.getElementsByClassName('mediaTitle');
+                     Array.from(titles).forEach(title => {
+                         highlight(keyword, title);
+                     });
+                     let descriptions = document.getElementsByClassName('mediaDescription');
+                     Array.from(descriptions).forEach(description => {
+                         highlight(keyword, description);
+                     })
+                }
+            }
+        }
+    </script>
+}

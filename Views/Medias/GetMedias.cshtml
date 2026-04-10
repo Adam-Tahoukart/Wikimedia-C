@@ -1,0 +1,50 @@
+﻿@using DAL
+@model IEnumerable<Models.Media>
+@{
+    if (Model.Count() != 0)
+    {
+        int connectedId = Models.User.ConnectedUser.Id;
+        foreach (var media in Model)
+        {
+            bool writeAccess = Models.User.ConnectedUser.IsAdmin || media.OwnerId == connectedId;
+            <div class="mediaLayout">
+                <a href="/Medias/Details/@media.Id" title="Voir les détails de @media.Title" style="text-decoration:none; width:100% !important">
+                    <div class="mediaThumbnail"
+                         style="background-image:url('https://img.youtube.com/vi/@media.YoutubeId/mqdefault.jpg'); padding:6px; display:flex; flex-flow:row-reverse ">
+                        <div class="UserSmallAvatar transparentBackground"
+                             style="background-image: url('@media.Owner.Avatar'); border:0.1px solid white;"
+                             title="Ajouté par @media.Owner.Name"></div>
+                        @if (writeAccess && media.Shared)
+                        {
+                            <div class="UserSmallAvatar transparentBackground" style="background-image: url('/Content/UI-Images/shared.png'); margin-right:6px;" title="partagée"></div>
+                        }
+                    </div>
+                </a>
+                <div class="mediaTitle ellipsis" style="margin-left: 4px; margin-right: 4px; font-size: 0.8em; font-weight: bold">
+                    @media.Title
+                </div>
+                <div style="display: grid; grid-template-columns: auto 120px; align-items: last baseline">
+                    <div style="margin-left: 4px; color: gray; font-size: 0.65em">
+                        @media.Category
+                        <span style="color:blue;">@Helper.When(media.PublishDate)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; padding-right:4px;">
+                        <span title="@string.Join(", ", media.LikedByUsers)" style="font-size:0.75em; margin-right:4px;">
+                            @media.LikesCount
+                        </span>
+                        <a class="toggleLikeCmd" mediaId="@media.Id" href="#" style="color:blue;">
+                            @if (DB.Likes.UserAlreadyLiked(media.Id, connectedId))
+                            {
+                                <i class="fas fa-thumbs-up"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-thumbs-up"></i>
+                            }
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}

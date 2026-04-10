@@ -1,0 +1,29 @@
+﻿@using DAL
+@using Models
+@using Controllers
+@model Models.Media
+
+<div class="like-panel" data-media-id="@Model.Id">
+    <span class="like-count"
+          title="@string.Join(", ", Model.LikedByUsers)">
+        @Model.LikesCount
+    </span>
+
+    @if (Models.User.ConnectedUser != null)
+    {
+        bool userLiked = DB.Likes.UserAlreadyLiked(
+            Model.Id,
+            Models.User.ConnectedUser.Id
+        );
+        <button class="like-btn" onclick="toggleLike(@Model.Id)">
+            @if (userLiked)
+            {
+                <i class="fas fa-heart" style="color:red"></i>
+            }
+            else
+            {
+                <i class="far fa-heart"></i>
+            }
+        </button>
+    }
+</div>

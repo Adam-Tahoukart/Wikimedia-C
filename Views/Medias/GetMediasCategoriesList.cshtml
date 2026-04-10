@@ -1,0 +1,31 @@
+﻿@{
+    List<string> categories = DAL.DB.Medias.MediasCategories();
+    string selectedCategory = (string)Session["SelectedCategory"];
+    int selectedUserId = Session["SelectedUserId"] != null ? (int)Session["SelectedUserId"] : 0;
+
+    var usersWithMedias = DAL.DB.Medias.ToList()
+        .Select(m => m.Owner)
+        .Where(u => u != null)
+        .GroupBy(u => u.Id)
+        .Select(g => g.First())
+        .OrderBy(u => u.Name)
+        .ToList();
+}
+
+<select id="categorySelect" class="form-control">
+    <option value="">Toutes les catégories</option>
+    @foreach (var category in categories)
+    {
+        string selected = selectedCategory == category ? "selected" : "";
+        <option value="@category" @selected>@category</option>
+    }
+</select>
+
+<select id="userSelect" class="form-control">
+    <option value="0">Tous les usagers</option>
+    @foreach (var user in usersWithMedias)
+    {
+        string selected = selectedUserId == user.Id ? "selected" : "";
+        <option value="@user.Id" @selected>@user.Name</option>
+    }
+</select>
