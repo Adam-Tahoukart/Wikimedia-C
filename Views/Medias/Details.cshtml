@@ -44,19 +44,7 @@
         function bindDetailLikeCmd() {
             $("#detailLikeCmd").off();
             $("#detailLikeCmd").click(function (e) {
-                let likeIcon = $(this).find("i");
-                let likeCount = $("#detailLikeCount");
-                mediaDetails_ARP.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"), () => {
-                    let liked = likeIcon.hasClass("fas");
-                    likeIcon.toggleClass("fas far");
-                    if (likeCount.length) {
-                        let count = parseInt(likeCount.text(), 10);
-                        if (!isNaN(count)) {
-                            likeCount.text(liked ? count - 1 : count + 1);
-                        }
-                    }
-                    detailHeader_ARP.refresh(true);
-                });
+                detailHeader_ARP.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
                 e.preventDefault();
             });
         }
